@@ -14,7 +14,7 @@ async function uploadAudio() {
   formData.append("file", file);
 
   try {
-    const response = await fetch("https://ai-meeting-assistant-backend-vlhx.onrender.com", {
+    const response = await fetch("http://127.0.0.1:8000/process-audio", {
       method: "POST",
       body: formData
     });
