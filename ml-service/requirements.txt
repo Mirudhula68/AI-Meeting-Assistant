@@ -1,3 +1,4 @@
 fastapi
 uvicorn
 deepgram-sdk
+transformers
