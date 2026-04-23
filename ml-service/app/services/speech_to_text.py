@@ -1,12 +1,19 @@
+import os
 from deepgram import DeepgramClient
 
-DEEPGRAM_API_KEY = "046d743f4fe4825bf73d25fc47514d320624ea41"
+# Get API key from environment
+api_key = os.getenv("DEEPGRAM_API_KEY")
+
+if not api_key:
+    raise ValueError("Deepgram API key missing!")
+
+# Create ONE global client (correct way)
+deepgram = DeepgramClient(api_key)
+
 
 def transcribe_audio(file_path):
-    dg_client = DeepgramClient(DEEPGRAM_API_KEY)
-
     with open(file_path, "rb") as audio:
-        response = dg_client.listen.prerecorded.v("1").transcribe_file(
+        response = deepgram.listen.prerecorded.v("1").transcribe_file(
             {"buffer": audio.read()},
             {"punctuate": True}
         )
