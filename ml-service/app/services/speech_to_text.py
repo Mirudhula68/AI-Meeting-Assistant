@@ -6,7 +6,7 @@ def transcribe_audio(file_path):
     dg_client = DeepgramClient(DEEPGRAM_API_KEY)
 
     with open(file_path, "rb") as audio:
-        response = dg_client.listen.prerecorded.transcribe_file(
+        response = dg_client.listen.prerecorded.v("1").transcribe_file(
             {"buffer": audio.read()},
             {"punctuate": True}
         )
