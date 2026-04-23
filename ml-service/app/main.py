@@ -1,15 +1,17 @@
 from fastapi import FastAPI
-from app.routes.process import router
+from fastapi.middleware.cors import CORSMiddleware
+from app.routes import process
 
 app = FastAPI()
 
-app.include_router(router)
-from fastapi.middleware.cors import CORSMiddleware
-
+# ✅ CORS FIX (VERY IMPORTANT)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # for development
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# ✅ Router prefix MUST match frontend
+app.include_router(process.router, prefix="/api/audio")

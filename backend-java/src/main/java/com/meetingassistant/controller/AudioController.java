@@ -1,36 +1,47 @@
 package com.meetingassistant.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.MediaType;
+import org.springframework.http.client.MultipartBodyBuilder;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.File;
-import java.io.IOException;
+import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.WebClient;
 
 @RestController
 @RequestMapping("/api/audio")
 public class AudioController {
 
-    private static final String UPLOAD_DIR = "D:\\ai-meeting-assistant\\backend-java\\uploads\\";
+    private static final Logger logger = LoggerFactory.getLogger(AudioController.class);
+    private final WebClient webClient;
+
+    public AudioController(WebClient.Builder webClientBuilder) {
+        this.webClient = webClientBuilder.baseUrl("http://localhost:8000").build();
+    }
 
     @PostMapping("/upload")
     public String uploadAudio(@RequestParam("file") MultipartFile file) {
+        logger.info("Received upload request for file: {}", file.getOriginalFilename());
 
         try {
-            // Create uploads folder if not exists
-            File directory = new File(UPLOAD_DIR);
-            if (!directory.exists()) {
-                directory.mkdirs();
-            }
+            MultipartBodyBuilder builder = new MultipartBodyBuilder();
+            builder.part("file", file.getResource());
+            MultiValueMap<String, HttpEntity<?>> multipartBody = builder.build();
 
-            // Save file
-            String filePath = UPLOAD_DIR + file.getOriginalFilename();
-            file.transferTo(new File(filePath));
+            return webClient.post()
+                    .uri("/api/audio/process-audio")
+                    .contentType(MediaType.MULTIPART_FORM_DATA)
+                    .body(BodyInserters.fromMultipartData(multipartBody))
+                    .retrieve()
+                    .bodyToMono(String.class)
+                    .block(); // Simple blocking for now to match synchronous controller
 
-            return "File uploaded successfully: " + filePath;
-
-        } catch (IOException e) {
-            e.printStackTrace(); // 👈 ADD THIS
-            return "Upload failed: " + e.getMessage();
+        } catch (Exception e) {
+            logger.error("Failed to proxy request to ML service: {}", e.getMessage(), e);
+            return "{\"error\": \"Gateway Error: " + e.getMessage() + "\"}";
         }
     }
 }
