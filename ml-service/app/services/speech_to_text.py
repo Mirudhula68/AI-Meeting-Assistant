@@ -1,8 +1,17 @@
-import whisper
+from deepgram import Deepgram
+import asyncio
 
-model = whisper.load_model("tiny")  # small model (fast)
+DEEPGRAM_API_KEY = "046d743f4fe4825bf73d25fc47514d320624ea41"
 
-def transcribe_audio(file_path):
-    model = whisper.load_model("tiny")  # ✅ load inside function
-    result = model.transcribe(file_path)
-    return result["text"]
+async def transcribe_audio(file_path):
+    dg_client = Deepgram(DEEPGRAM_API_KEY)
+
+    with open(file_path, "rb") as audio:
+        source = {"buffer": audio, "mimetype": "audio/wav"}
+
+        response = await dg_client.transcription.prerecorded(
+            source,
+            {"punctuate": True}
+        )
+
+    return response["results"]["channels"][0]["alternatives"][0]["transcript"]
