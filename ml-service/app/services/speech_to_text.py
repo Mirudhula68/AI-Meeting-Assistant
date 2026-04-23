@@ -7,11 +7,11 @@ api_key = os.getenv("DEEPGRAM_API_KEY")
 if not api_key:
     raise ValueError("Deepgram API key missing!")
 
-# Create ONE global client (correct way)
-deepgram = DeepgramClient(api_key)
-
+# Correct initialization (NO direct parameter)
+deepgram = DeepgramClient()
 
 def transcribe_audio(file_path):
+
     with open(file_path, "rb") as audio:
         response = deepgram.listen.prerecorded.v("1").transcribe_file(
             {"buffer": audio.read()},
