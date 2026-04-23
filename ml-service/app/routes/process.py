@@ -8,7 +8,7 @@ router = APIRouter()
 
 
 @router.post("/process-audio")
-async def process_audio(file: UploadFile = File(...)):
+def process_audio(file: UploadFile = File(...)):
 
     file_path = f"temp/{file.filename}"
 
